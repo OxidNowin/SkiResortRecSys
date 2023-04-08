@@ -37,3 +37,7 @@ env.bak/
 venv.bak/
 
 __pycache__/
+*.py[cod]
+*$py.class
+__pypackages__/
+share/python-wheels/
