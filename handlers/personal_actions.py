@@ -90,6 +90,9 @@ async def request_close_question(message: types.Message, state: FSMContext):
     await state.finish()
     msq_to_ai = f"Подбери 1 горнолыжный курорт в России на даты {start}-{end}, " \
                 f"удовлетворяющий следующему запросу:{message.text}"
+    await message.bot.send_message(message.chat.id,
+                                   'Подбираем горнолыжный курорт...',
+                                   reply_markup=start_reply_kb)
     response = await get_resort(msq_to_ai)
     await message.bot.send_message(message.chat.id,
                                    response,
