@@ -6,7 +6,7 @@ from aiogram.utils.markdown import hlink
 from dispatcher import dp
 from filters import IsAdmin
 from keyboards import *
-from utils import is_user, add_user
+from utils import is_user, add_user, add_finding
 from states import OpenQuestion
 from utils.openai_api.openai import get_resort
 
@@ -87,13 +87,38 @@ async def request_close_question(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         start = data['vacation_start']
         end = data['vacation_end']
-    await state.finish()
-    msq_to_ai = f"Подбери 1 горнолыжный курорт в России на даты {start}-{end}, " \
-                f"удовлетворяющий следующему запросу:{message.text}"
+    msq_to_ai = f"Подбери 1 горнолыжный курорт на даты {start}-{end}, " \
+                f"удовлетворяющий следующему запросу:\n{message.text}"
     await message.bot.send_message(message.chat.id,
                                    'Подбираем горнолыжный курорт...',
                                    reply_markup=start_reply_kb)
-    response = await get_resort(msq_to_ai)
+    response, time = await get_resort(msq_to_ai)
+    await state.update_data(response_time=time)
+    await OpenQuestion.estimate.set()
     await message.bot.send_message(message.chat.id,
-                                   response,
+                                   response)
+    await message.bot.send_message(message.chat.id,
+                                   'Поставьте оценку предложенного нами курорта',
+                                   reply_markup=estimate_reply_kb)
+
+
+@dp.message_handler(state=OpenQuestion.estimate)
+async def request_estimate(message: types.Message, state: FSMContext):
+    if isinstance(int(message.text), int):
+        if not(1 <= int(message.text) <= 10):
+            await message.bot.send_message(message.chat.id,
+                                           'Поставьте оценку от 1 до 10',
+                                           reply_markup=estimate_reply_kb)
+            return
+    else:
+        await message.bot.send_message(message.chat.id,
+                                       'Поставьте оценку от 1 до 10',
+                                       reply_markup=estimate_reply_kb)
+        return
+    async with state.proxy() as data:
+        time = data['response_time']
+    await state.finish()
+    await add_finding(message.from_user.id, int(message.text), time, True)
+    await message.bot.send_message(message.chat.id,
+                                   'Спасибо что выбрали наш сервис по подбору горнолыжный курортов!',
                                    reply_markup=start_reply_kb)

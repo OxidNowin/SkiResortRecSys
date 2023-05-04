@@ -6,3 +6,5 @@ class OpenQuestion(StatesGroup):
     vacation_start = State()
     vacation_end = State()
     request = State()
+    estimate = State()
+    response_time = State()

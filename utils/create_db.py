@@ -13,15 +13,16 @@ def create_tables():
             name VARCHAR(255)            
         )
         """,
-        # """
-        # CREATE TABLE IF NOT EXISTS finding (
-        #     finding_id SERIAL PRIMARY KEY,
-        #     user_id INTEGER,
-        #     estimate INTEGER,
-        #     is_closed_question BOOLEAN NOT NULL,
-        #     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
-        # )
-        # """,
+        """
+        CREATE TABLE IF NOT EXISTS finding (
+            finding_id SERIAL PRIMARY KEY,
+            user_id INTEGER,
+            estimate INTEGER,
+            response_time REAL,
+            is_closed_question BOOLEAN NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        )
+        """,
     )
     with psycopg.connect(user=USER, password=PASSWORD, host=HOST, dbname=DB_NAME) as conn:
         with conn.cursor() as cur:
