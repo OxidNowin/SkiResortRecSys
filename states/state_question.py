@@ -8,3 +8,12 @@ class OpenQuestion(StatesGroup):
     request = State()
     estimate = State()
     response_time = State()
+
+
+class CloseQuestion(StatesGroup):
+    vacation_start = State()
+    vacation_end = State()
+    adults = State()
+    kids = State()
+    filter_stars = State()
+    nights = State()
